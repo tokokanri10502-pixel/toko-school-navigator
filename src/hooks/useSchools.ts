@@ -1,9 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import type { School, RelationStage } from '../types/school';
 import { parseSchoolsCSV } from '../utils/csvParser';
-
-const GAS_DIRECT = 'https://script.google.com/macros/s/AKfycby4YW8gFyamjXJL4bOHzonUJh_Bo2Nj9WZR0HgdH6-SbHq-tPYqNAHPpzwN_qMVvsJv/exec';
-const GAS_URL = import.meta.env.DEV ? '/gas-api' : GAS_DIRECT;
+import { GAS_URL } from '../utils/gasUrl';
 
 const PROGRESS_KEY = 'toko-school-nav-progress';
 

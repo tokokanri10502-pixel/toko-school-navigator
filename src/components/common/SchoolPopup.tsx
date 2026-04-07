@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import type { School, RelationStage } from '../../types/school';
+import { GAS_URL } from '../../utils/gasUrl';
 import { STAGE_LABELS, STAGE_COLORS, STAGE_SHORT, parseStages, formatStages } from '../../types/school';
 
 interface SchoolPopupProps {
@@ -45,7 +46,7 @@ export function SchoolPopup({ school, onUpdate, onClose }: SchoolPopupProps) {
   useEffect(() => {
     if (!school.website) return;
     setNewsLoading(true);
-    fetch('/gas-api', {
+    fetch(GAS_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'text/plain' },
       body: JSON.stringify({ action: 'fetchNews', schoolId: school.id, url: school.website }),
