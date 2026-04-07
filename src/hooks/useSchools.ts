@@ -2,7 +2,8 @@ import { useState, useEffect, useCallback } from 'react';
 import type { School, RelationStage } from '../types/school';
 import { parseSchoolsCSV } from '../utils/csvParser';
 
-const GAS_URL = '/gas-api';
+const GAS_DIRECT = 'https://script.google.com/macros/s/AKfycby4YW8gFyamjXJL4bOHzonUJh_Bo2Nj9WZR0HgdH6-SbHq-tPYqNAHPpzwN_qMVvsJv/exec';
+const GAS_URL = import.meta.env.DEV ? '/gas-api' : GAS_DIRECT;
 
 const PROGRESS_KEY = 'toko-school-nav-progress';
 
@@ -61,7 +62,7 @@ export function useSchools() {
       } catch (e) {
         console.error('GAS fetch failed, falling back to local CSV', e);
         try {
-          const parsed = await parseSchoolsCSV('/data/schools.csv');
+          const parsed = await parseSchoolsCSV(`${import.meta.env.BASE_URL}data/schools.csv`);
           const progress = loadProgress();
           const merged = parsed.map((s) => {
             const p = progress[s.id];
