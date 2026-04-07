@@ -141,7 +141,7 @@ export function SchoolMap({ schools, selectedId, onSelect }: SchoolMapProps) {
         if (!inBounds) {
           map.setView([sel.lat, sel.lng], targetZoom, { animate: true, duration: 0.4 });
         } else if (map.getZoom() < 14) {
-          map.setZoomAround([sel.lat, sel.lng] as [number, number], targetZoom, { animate: true, duration: 0.4 });
+          map.setZoomAround([sel.lat, sel.lng] as [number, number], targetZoom, { animate: true });
         }
         zoomedToIdRef.current = selectedId;
       }

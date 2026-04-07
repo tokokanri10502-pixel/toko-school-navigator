@@ -65,7 +65,7 @@ export function useSchools() {
           const progress = loadProgress();
           const merged = parsed.map((s) => {
             const p = progress[s.id];
-            return p ? { ...s, ...p } : s;
+            return p ? { ...s, ...p, relation_stage: String(p.relation_stage ?? s.relation_stage) } : s;
           });
           setSchools(merged);
         } catch (e2) {

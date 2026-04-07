@@ -1,5 +1,5 @@
 import Papa from 'papaparse';
-import type { School, RelationStage } from '../types/school';
+import type { School } from '../types/school';
 
 export async function parseSchoolsCSV(url: string): Promise<School[]> {
   return new Promise((resolve, reject) => {
@@ -23,7 +23,7 @@ export async function parseSchoolsCSV(url: string): Promise<School[]> {
           website: row.website || '',
           contact_person: row.contact_person || '',
           contact_date: row.contact_date || '',
-          relation_stage: (parseInt(row.relation_stage) || 0) as RelationStage,
+          relation_stage: row.relation_stage || '0',
           support_items: row.support_items || '',
           notes: row.notes || '',
         }));

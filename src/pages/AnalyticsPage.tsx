@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react';
-import type { School } from '../types/school';
+import type { School, RelationStage } from '../types/school';
 import { STAGE_COLORS, STAGE_LABELS, parseStages } from '../types/school';
 
 interface Props {
@@ -14,14 +14,14 @@ const TYPE_COLORS: Record<string, string> = { '大学': '#3b82f6', '短期大学
 const CATEGORY_COLORS: Record<string, string> = { '国公立': '#22c55e', '私立': '#f43f5e' };
 
 interface PhaseEntry {
-  stage: number;
+  stage: RelationStage;
   schools: School[];
   byType: Record<string, School[]>;
   byCategory: Record<string, School[]>;
 }
 
 // ── ドーナツグラフ ─────────────────────────────────────────
-function DonutChart({ data, total }: { data: Array<{ stage: number; count: number; color: string }>; total: number }) {
+function DonutChart({ data, total }: { data: Array<{ stage: RelationStage; count: number; color: string }>; total: number }) {
   const r = 68;
   const strokeW = 28;
   const size = 190;
