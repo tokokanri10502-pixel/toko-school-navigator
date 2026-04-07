@@ -37,6 +37,7 @@ function gasProxy(): Plugin {
 }
 
 export default defineConfig({
+  base: '/toko-school-navigator/',
   plugins: [react(), gasProxy()],
   server: {
     port: 5174,
