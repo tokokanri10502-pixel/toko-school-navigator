@@ -80,6 +80,11 @@ function AuthenticatedApp() {
               schools={filtered}
               selectedId={selectedId}
               onSelect={handleSelect}
+              onDblClick={(school) => {
+                setSelectedId(school.id);
+                setMapSelectedId(school.id);
+                setPage('list');
+              }}
             />
           </div>
 

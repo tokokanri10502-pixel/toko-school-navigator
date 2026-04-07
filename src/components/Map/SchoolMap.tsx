@@ -13,6 +13,7 @@ interface SchoolMapProps {
   schools: School[];
   selectedId: string | null;
   onSelect: (school: School) => void;
+  onDblClick?: (school: School) => void;
 }
 
 const HIROSHIMA_CENTER: [number, number] = [34.3963, 132.4596];
@@ -36,7 +37,7 @@ function makeIcon(color: string, isSelected: boolean, anchorOffsetX = 0): L.Icon
   });
 }
 
-export function SchoolMap({ schools, selectedId, onSelect }: SchoolMapProps) {
+export function SchoolMap({ schools, selectedId, onSelect, onDblClick }: SchoolMapProps) {
   const mapRef = useRef<HTMLDivElement>(null);
   const leafletMapRef = useRef<L.Map | null>(null);
   const markersRef = useRef<L.Marker[]>([]);
@@ -44,7 +45,9 @@ export function SchoolMap({ schools, selectedId, onSelect }: SchoolMapProps) {
   const zoomedToIdRef = useRef<string | null>(null);
   const prevSelectedIdRef = useRef<string | null>(null);
   const onSelectRef = useRef(onSelect);
+  const onDblClickRef = useRef(onDblClick);
   useEffect(() => { onSelectRef.current = onSelect; }, [onSelect]);
+  useEffect(() => { onDblClickRef.current = onDblClick; }, [onDblClick]);
 
   useEffect(() => {
     if (!mapRef.current) return;
@@ -112,7 +115,19 @@ export function SchoolMap({ schools, selectedId, onSelect }: SchoolMapProps) {
         zIndexOffset: isSelected ? 1000 : 0,
       }).addTo(map);
 
-      marker.on('click', () => onSelectRef.current(school));
+      let clickTimer: ReturnType<typeof setTimeout> | null = null;
+      marker.on('click', () => {
+        if (clickTimer) return;
+        clickTimer = setTimeout(() => {
+          clickTimer = null;
+          onSelectRef.current(school);
+        }, 250);
+      });
+      marker.on('dblclick', (e) => {
+        L.DomEvent.stopPropagation(e);
+        if (clickTimer) { clearTimeout(clickTimer); clickTimer = null; }
+        onDblClickRef.current?.(school);
+      });
       markersRef.current.push(marker);
 
       // 選択中のみラベル表示（ピンのオフセットに合わせてラベルもずらす）
