@@ -1,0 +1,72 @@
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;600;700&display=swap');
+@import 'leaflet/dist/leaflet.css';
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: 'Noto Sans JP', system-ui, sans-serif;
+  background: #0f172a;
+  color: #e2e8f0;
+}
+
+#root {
+  width: 100%;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* スクロールバースタイル */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #1e293b;
+}
+::-webkit-scrollbar-thumb {
+  background: #334155;
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #475569;
+}
+
+/* === Tailwind base によるLeaflet上書きを修正 === */
+/* Tailwind base: img { display: block; border-style: solid } → Leaflet marker内SVGに影響 */
+.leaflet-container img {
+  max-width: none !important;
+  max-height: none !important;
+}
+.leaflet-tile {
+  border: 0 !important;
+}
+
+/* マーカーをタイルより確実に前面に出す */
+.leaflet-pane {
+  z-index: auto;
+}
+.leaflet-tile-pane {
+  z-index: 200 !important;
+}
+.leaflet-overlay-pane {
+  z-index: 400 !important;
+}
+.leaflet-marker-pane {
+  z-index: 600 !important;
+  pointer-events: auto !important;
+}
+.leaflet-marker-icon {
+  overflow: visible !important;
+  pointer-events: auto !important;
+}
+.leaflet-marker-icon svg {
+  display: block !important;
+  overflow: visible !important;
+  pointer-events: auto !important;
+}
