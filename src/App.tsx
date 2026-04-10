@@ -90,8 +90,8 @@ function AuthenticatedApp() {
 
           {/* 右パネル */}
           <div
-            className="w-[480px] flex-shrink-0 bg-[#0f172a] border-l border-[#1e3a5f] flex flex-col overflow-hidden"
-            style={{ minWidth: '420px', maxWidth: '520px' }}
+            className="w-[960px] flex-shrink-0 bg-[#0f172a] border-l border-[#1e3a5f] flex flex-col overflow-hidden"
+            style={{ minWidth: '840px', maxWidth: '1040px' }}
           >
             <FilterBar
               filter={filter}
