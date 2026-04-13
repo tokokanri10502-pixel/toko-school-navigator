@@ -13,7 +13,7 @@ interface SchoolListPageProps {
   mapSelectedId?: string | null; // 地図ピンからの選択（2番目移動用）
 }
 
-type SortKey = 'type' | 'category' | 'phase';
+type SortKey = 'type' | 'category' | 'phase' | 'contact_date';
 type SortDir = 'asc' | 'desc';
 
 const STAGES: RelationStage[] = [0, 1, 2, 3, 4, 5, 6];
@@ -54,7 +54,7 @@ export function SchoolListPage({ schools, onUpdate, selectedId, onSelectId, mapS
       setSortDir((d) => (d === 'asc' ? 'desc' : 'asc'));
     } else {
       setSortKey(key);
-      setSortDir(key === 'phase' ? 'desc' : 'asc');
+      setSortDir(key === 'phase' || key === 'contact_date' ? 'desc' : 'asc');
     }
   }
 
@@ -67,6 +67,14 @@ export function SchoolListPage({ schools, onUpdate, selectedId, onSelectId, mapS
       }
       else if (sortKey === 'category') cmp = (CATEGORY_ORDER[a.category] ?? 9) - (CATEGORY_ORDER[b.category] ?? 9);
       else if (sortKey === 'phase') cmp = highestStage(a.relation_stage) - highestStage(b.relation_stage);
+      else if (sortKey === 'contact_date') {
+        const da = a.contact_date || '';
+        const db = b.contact_date || '';
+        if (!da && !db) cmp = 0;
+        else if (!da) cmp = 1;  // 未入力は末尾
+        else if (!db) cmp = -1;
+        else cmp = da.localeCompare(db);
+      }
       return sortDir === 'asc' ? cmp : -cmp;
     });
     if (!mapSelectedId) return base;
@@ -170,7 +178,13 @@ export function SchoolListPage({ schools, onUpdate, selectedId, onSelectId, mapS
               <th style={{width:'160px'}} className="text-left px-3 py-3 text-slate-400 font-medium">フェーズ</th>
               <th style={{width:'110px'}} className="text-left px-3 py-3 text-slate-400 font-medium">TOKO担当者</th>
               <th style={{width:'110px'}} className="text-left px-3 py-3 text-slate-400 font-medium">担当者</th>
-              <th style={{width:'96px'}} className="text-left px-3 py-3 text-slate-400 font-medium">最終接触日</th>
+              <th
+                style={{width:'96px'}}
+                className="text-left px-3 py-3 text-slate-400 font-medium cursor-pointer hover:text-white select-none"
+                onClick={() => handleSort('contact_date')}
+              >
+                最終接触日 <SortIcon col="contact_date" />
+              </th>
               <th className="text-left px-3 py-3 text-slate-400 font-medium">メモ</th>
             </tr>
           </thead>
