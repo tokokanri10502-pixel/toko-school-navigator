@@ -204,7 +204,7 @@ export function SchoolDetail({ school, onUpdate, onClose }: SchoolDetailProps) {
           <div className="text-sm text-slate-500 mb-2 font-medium">これまでの実績（昨年までの実施項目）</div>
           <div className="space-y-2">
             {SUPPORT_ITEM_OPTIONS.map((item) => (
-              <label key={item} className="flex items-center gap-2.5 cursor-pointer">
+              <label key={item} className="flex items-center gap-2.5 cursor-pointer w-fit">
                 <input
                   type="checkbox"
                   checked={supportItems.includes(item)}
@@ -218,7 +218,7 @@ export function SchoolDetail({ school, onUpdate, onClose }: SchoolDetailProps) {
             ))}
             {/* その他 */}
             <div className="space-y-1.5">
-              <label className="flex items-center gap-2.5 cursor-pointer">
+              <label className="flex items-center gap-2.5 cursor-pointer w-fit">
                 <input
                   type="checkbox"
                   checked={supportItems.includes('その他')}
