@@ -23,6 +23,7 @@ export interface School {
   support_items: string;
   support_other_note: string; // その他（自由記述）
   notes: string;
+  notes_date: string;         // メモ入力日
 }
 
 export const STAGE_LABELS: Record<RelationStage, string> = {

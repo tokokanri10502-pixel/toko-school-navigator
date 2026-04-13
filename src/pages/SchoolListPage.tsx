@@ -13,7 +13,7 @@ interface SchoolListPageProps {
   mapSelectedId?: string | null; // 地図ピンからの選択（2番目移動用）
 }
 
-type SortKey = 'type' | 'category' | 'phase' | 'contact_date';
+type SortKey = 'type' | 'category' | 'phase' | 'contact_date' | 'notes_date';
 type SortDir = 'asc' | 'desc';
 
 const STAGES: RelationStage[] = [0, 1, 2, 3, 4, 5, 6];
@@ -24,7 +24,7 @@ export function SchoolListPage({ schools, onUpdate, selectedId, onSelectId, mapS
   const { filter, filtered, toggleType, toggleCategory, toggleStage, setSearch, resetFilter } = useFilter(schools);
   const [sortKey, setSortKey] = useState<SortKey>('type');
   const [sortDir, setSortDir] = useState<SortDir>('asc');
-  const [editingCell, setEditingCell] = useState<{ id: string; field: 'notes' | 'contact_person' | 'contact_date' | 'toko_person'; value: string } | null>(null);
+  const [editingCell, setEditingCell] = useState<{ id: string; field: 'notes' | 'contact_person' | 'contact_date' | 'toko_person' | 'notes_date'; value: string } | null>(null);
   const [phaseDropdown, setPhaseDropdown] = useState<string | null>(null);
   const [popupSchool, setPopupSchool] = useState<School | null>(null);
   const phaseDropdownRef = useRef<HTMLDivElement>(null);
@@ -54,7 +54,7 @@ export function SchoolListPage({ schools, onUpdate, selectedId, onSelectId, mapS
       setSortDir((d) => (d === 'asc' ? 'desc' : 'asc'));
     } else {
       setSortKey(key);
-      setSortDir(key === 'phase' || key === 'contact_date' ? 'desc' : 'asc');
+      setSortDir(key === 'phase' || key === 'contact_date' || key === 'notes_date' ? 'desc' : 'asc');
     }
   }
 
@@ -71,7 +71,15 @@ export function SchoolListPage({ schools, onUpdate, selectedId, onSelectId, mapS
         const da = a.contact_date || '';
         const db = b.contact_date || '';
         if (!da && !db) cmp = 0;
-        else if (!da) cmp = 1;  // 未入力は末尾
+        else if (!da) cmp = 1;
+        else if (!db) cmp = -1;
+        else cmp = da.localeCompare(db);
+      }
+      else if (sortKey === 'notes_date') {
+        const da = a.notes_date || '';
+        const db = b.notes_date || '';
+        if (!da && !db) cmp = 0;
+        else if (!da) cmp = 1;
         else if (!db) cmp = -1;
         else cmp = da.localeCompare(db);
       }
@@ -100,7 +108,7 @@ export function SchoolListPage({ schools, onUpdate, selectedId, onSelectId, mapS
     }
   }
 
-  function cellValue(school: School, field: 'notes' | 'contact_person' | 'contact_date' | 'toko_person') {
+  function cellValue(school: School, field: 'notes' | 'contact_person' | 'contact_date' | 'toko_person' | 'notes_date') {
     if (editingCell?.id === school.id && editingCell.field === field) return editingCell.value;
     return school[field] || '';
   }
@@ -191,13 +199,20 @@ export function SchoolListPage({ schools, onUpdate, selectedId, onSelectId, mapS
               >
                 最終接触日 <SortIcon col="contact_date" />
               </th>
+              <th
+                style={{width:'100px'}}
+                className="text-left px-3 py-3 text-slate-400 font-medium cursor-pointer hover:text-white select-none"
+                onClick={() => handleSort('notes_date')}
+              >
+                メモ日付 <SortIcon col="notes_date" />
+              </th>
               <th className="text-left px-3 py-3 text-slate-400 font-medium">メモ</th>
             </tr>
           </thead>
           <tbody>
             {sorted.length === 0 && (
               <tr>
-                <td colSpan={11} className="text-center py-16 text-slate-500">
+                <td colSpan={12} className="text-center py-16 text-slate-500">
                   条件に一致する学校がありません
                 </td>
               </tr>
@@ -307,6 +322,17 @@ export function SchoolListPage({ schools, onUpdate, selectedId, onSelectId, mapS
                     placeholder="YYYY-MM-DD"
                     onFocus={() => setEditingCell({ id: school.id, field: 'contact_date', value: school.contact_date || '' })}
                     onChange={(e) => setEditingCell({ id: school.id, field: 'contact_date', value: e.target.value })}
+                    onBlur={() => handleCellBlur(school)}
+                    className="w-full bg-transparent border border-transparent hover:border-[#334155] focus:border-[#3b82f6] focus:bg-[#1e293b] rounded px-2 py-1 text-slate-400 placeholder-slate-600 focus:text-slate-200 focus:outline-none transition-colors text-sm"
+                  />
+                </td>
+                <td className="px-3 py-2.5" onClick={(e) => e.stopPropagation()}>
+                  <input
+                    type="text"
+                    value={cellValue(school, 'notes_date')}
+                    placeholder="YYYY-MM-DD"
+                    onFocus={() => setEditingCell({ id: school.id, field: 'notes_date', value: school.notes_date || '' })}
+                    onChange={(e) => setEditingCell({ id: school.id, field: 'notes_date', value: e.target.value })}
                     onBlur={() => handleCellBlur(school)}
                     className="w-full bg-transparent border border-transparent hover:border-[#334155] focus:border-[#3b82f6] focus:bg-[#1e293b] rounded px-2 py-1 text-slate-400 placeholder-slate-600 focus:text-slate-200 focus:outline-none transition-colors text-sm"
                   />

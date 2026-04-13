@@ -16,6 +16,7 @@ export function SchoolDetail({ school, onUpdate, onClose }: SchoolDetailProps) {
   const [tokoPerson, setTokoPerson] = useState(school.toko_person || '');
   const [otherNote, setOtherNote] = useState(school.support_other_note || '');
   const [notes, setNotes] = useState(school.notes);
+  const [notesDate, setNotesDate] = useState(school.notes_date || '');
   const [oc2026, setOc2026] = useState(school.open_campus_2026);
 
   useEffect(() => {
@@ -24,11 +25,12 @@ export function SchoolDetail({ school, onUpdate, onClose }: SchoolDetailProps) {
     setTokoPerson(school.toko_person || '');
     setOtherNote(school.support_other_note || '');
     setNotes(school.notes);
+    setNotesDate(school.notes_date || '');
     setOc2026(school.open_campus_2026);
   }, [school.id]);
 
   function handleSave() {
-    onUpdate(school.id, { contact_person: contactPerson, contact_date: contactDate, toko_person: tokoPerson, notes, open_campus_2026: oc2026 });
+    onUpdate(school.id, { contact_person: contactPerson, contact_date: contactDate, toko_person: tokoPerson, notes, notes_date: notesDate, open_campus_2026: oc2026 });
   }
 
   function handleStageToggle(stage: RelationStage) {
@@ -271,7 +273,17 @@ export function SchoolDetail({ school, onUpdate, onClose }: SchoolDetailProps) {
 
         {/* メモ */}
         <div>
-          <label className="text-sm text-slate-500 font-medium block mb-1">メモ</label>
+          <div className="flex items-center justify-between mb-1">
+            <label className="text-sm text-slate-500 font-medium">メモ</label>
+            <input
+              type="date"
+              value={notesDate}
+              onChange={(e) => setNotesDate(e.target.value)}
+              onBlur={handleSave}
+              className="px-2 py-1 bg-[#1e293b] border border-[#334155] rounded text-xs text-slate-400 focus:outline-none focus:border-blue-500 transition-colors"
+              style={{ colorScheme: 'dark' }}
+            />
+          </div>
           <textarea
             value={notes}
             onChange={(e) => setNotes(e.target.value)}

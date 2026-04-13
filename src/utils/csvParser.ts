@@ -28,6 +28,7 @@ export async function parseSchoolsCSV(url: string): Promise<School[]> {
           support_items: row.support_items || '',
           support_other_note: row.support_other_note || '',
           notes: row.notes || '',
+          notes_date: row.notes_date || '',
         }));
         resolve(schools);
       },

@@ -13,6 +13,7 @@ type ProgressData = Record<string, {
   support_items: string;
   support_other_note: string;
   notes: string;
+  notes_date: string;
   open_campus_2026: string;
 }>;
 
