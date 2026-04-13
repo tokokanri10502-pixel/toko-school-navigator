@@ -31,7 +31,15 @@ export function SchoolListPage({ schools, onUpdate, selectedId, onSelectId, mapS
   const clickTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const mapSelectedRowRef = useRef<HTMLTableRowElement | null>(null);
 
-  // 地図/分析から選択された時だけスクロール
+  // 地図/分析から選択された時、フィルター外なら全解除してから2番目へスクロール
+  useEffect(() => {
+    if (!mapSelectedId) return;
+    const inFiltered = filtered.some((s) => s.id === mapSelectedId);
+    if (!inFiltered) {
+      resetFilter();
+    }
+  }, [mapSelectedId]);
+
   useEffect(() => {
     if (mapSelectedId && mapSelectedRowRef.current) {
       mapSelectedRowRef.current.scrollIntoView({ block: 'center', behavior: 'smooth' });
