@@ -9,6 +9,7 @@ type ProgressData = Record<string, {
   contact_person: string;
   contact_date: string;
   relation_stage: RelationStage;
+  toko_person: string;
   support_items: string;
   notes: string;
   open_campus_2026: string;

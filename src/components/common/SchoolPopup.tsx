@@ -20,6 +20,7 @@ interface NewsResult {
 
 export function SchoolPopup({ school, onUpdate, onClose }: SchoolPopupProps) {
   const [contactPerson, setContactPerson] = useState(school.contact_person || '');
+  const [tokoPerson, setTokoPerson] = useState(school.toko_person || '');
   const [news, setNews] = useState<NewsResult | null>(null);
   const [newsLoading, setNewsLoading] = useState(false);
 
@@ -58,6 +59,9 @@ export function SchoolPopup({ school, onUpdate, onClose }: SchoolPopupProps) {
   }, [school.id, school.website]);
 
   const activeStages = parseStages(school.relation_stage);
+  const faculties = school.faculty
+    ? school.faculty.split('/').map((s) => s.trim()).filter(Boolean)
+    : [];
 
   return (
     <div
@@ -103,6 +107,20 @@ export function SchoolPopup({ school, onUpdate, onClose }: SchoolPopupProps) {
             </a>
           )}
 
+          {/* 学部・学科 */}
+          {faculties.length > 0 && (
+            <div>
+              <div className="text-sm text-gray-500 mb-2 font-medium">学部・学科</div>
+              <div className="flex flex-wrap gap-1.5">
+                {faculties.map((f, i) => (
+                  <span key={i} className="text-sm px-2 py-0.5 rounded text-gray-600" style={{ backgroundColor: '#f0e8c0', border: '1px solid #d0c890' }}>
+                    {f}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+
           {/* フェーズ */}
           <div>
             <div className="text-sm text-gray-500 mb-2 font-medium">営業フェーズ</div>
@@ -134,6 +152,23 @@ export function SchoolPopup({ school, onUpdate, onClose }: SchoolPopupProps) {
                 ))}
               </div>
             )}
+          </div>
+
+          {/* TOKO担当者 */}
+          <div>
+            <label className="text-sm text-gray-500 font-medium block mb-1.5">TOKO担当者</label>
+            <input
+              type="text"
+              value={tokoPerson}
+              onChange={(e) => setTokoPerson(e.target.value)}
+              onBlur={() => {
+                if (tokoPerson !== school.toko_person) {
+                  onUpdate(school.id, { toko_person: tokoPerson });
+                }
+              }}
+              placeholder="TOKO担当者名を入力..."
+              className="w-full px-3 py-2 rounded text-sm text-gray-800 placeholder-gray-400 focus:outline-none transition-colors" style={{ backgroundColor: '#fdf8e0', border: '1px solid #d0c890' }}
+            />
           </div>
 
           {/* 担当者名 */}

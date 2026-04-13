@@ -13,18 +13,20 @@ const STAGES: RelationStage[] = [0, 1, 2, 3, 4, 5, 6];
 export function SchoolDetail({ school, onUpdate, onClose }: SchoolDetailProps) {
   const [contactPerson, setContactPerson] = useState(school.contact_person);
   const [contactDate, setContactDate] = useState(school.contact_date);
+  const [tokoPerson, setTokoPerson] = useState(school.toko_person || '');
   const [notes, setNotes] = useState(school.notes);
   const [oc2026, setOc2026] = useState(school.open_campus_2026);
 
   useEffect(() => {
     setContactPerson(school.contact_person);
     setContactDate(school.contact_date);
+    setTokoPerson(school.toko_person || '');
     setNotes(school.notes);
     setOc2026(school.open_campus_2026);
   }, [school.id]);
 
   function handleSave() {
-    onUpdate(school.id, { contact_person: contactPerson, contact_date: contactDate, notes, open_campus_2026: oc2026 });
+    onUpdate(school.id, { contact_person: contactPerson, contact_date: contactDate, toko_person: tokoPerson, notes, open_campus_2026: oc2026 });
   }
 
   function handleStageToggle(stage: RelationStage) {
@@ -141,6 +143,19 @@ export function SchoolDetail({ school, onUpdate, onClose }: SchoolDetailProps) {
               ))
             )}
           </div>
+        </div>
+
+        {/* TOKO担当者 */}
+        <div>
+          <label className="text-sm text-slate-500 font-medium block mb-1">TOKO担当者</label>
+          <input
+            type="text"
+            value={tokoPerson}
+            onChange={(e) => setTokoPerson(e.target.value)}
+            onBlur={handleSave}
+            placeholder="未入力"
+            className="w-full px-3 py-2 bg-[#1e293b] border border-[#334155] rounded text-sm text-slate-200 placeholder-slate-600 focus:outline-none focus:border-red-500 transition-colors"
+          />
         </div>
 
         {/* 学部・学科 */}

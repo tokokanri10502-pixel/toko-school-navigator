@@ -24,6 +24,7 @@ export async function parseSchoolsCSV(url: string): Promise<School[]> {
           contact_person: row.contact_person || '',
           contact_date: row.contact_date || '',
           relation_stage: row.relation_stage || '0',
+          toko_person: row.toko_person || '',
           support_items: row.support_items || '',
           notes: row.notes || '',
         }));
