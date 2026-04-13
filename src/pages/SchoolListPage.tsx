@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import type { School, RelationStage } from '../types/school';
-import { STAGE_COLORS, STAGE_LABELS, STAGE_SHORT, parseStages, formatStages, highestStage } from '../types/school';
+import { STAGE_COLORS, STAGE_LABELS, STAGE_SHORT, parseStages, formatStages } from '../types/school';
 import { useFilter } from '../hooks/useFilter';
 import { FilterBar } from '../components/Panel/FilterBar';
 import { SchoolPopup } from '../components/common/SchoolPopup';
@@ -66,7 +66,7 @@ export function SchoolListPage({ schools, onUpdate, selectedId, onSelectId, mapS
         if (cmp === 0) cmp = (CATEGORY_ORDER[a.category] ?? 9) - (CATEGORY_ORDER[b.category] ?? 9);
       }
       else if (sortKey === 'category') cmp = (CATEGORY_ORDER[a.category] ?? 9) - (CATEGORY_ORDER[b.category] ?? 9);
-      else if (sortKey === 'phase') cmp = highestStage(a.relation_stage) - highestStage(b.relation_stage);
+      else if (sortKey === 'phase') cmp = parseStages(a.relation_stage).length - parseStages(b.relation_stage).length;
       else if (sortKey === 'contact_date') {
         const da = a.contact_date || '';
         const db = b.contact_date || '';
@@ -175,7 +175,13 @@ export function SchoolListPage({ schools, onUpdate, selectedId, onSelectId, mapS
               </th>
               <th style={{width:'150px'}} className="text-left px-3 py-3 text-slate-400 font-medium">住所</th>
               <th style={{width:'220px'}} className="text-left px-3 py-3 text-slate-400 font-medium">学部・学科</th>
-              <th style={{width:'160px'}} className="text-left px-3 py-3 text-slate-400 font-medium">フェーズ</th>
+              <th
+                style={{width:'160px'}}
+                className="text-left px-3 py-3 text-slate-400 font-medium cursor-pointer hover:text-white select-none"
+                onClick={() => handleSort('phase')}
+              >
+                フェーズ <SortIcon col="phase" />
+              </th>
               <th style={{width:'110px'}} className="text-left px-3 py-3 text-slate-400 font-medium">TOKO担当者</th>
               <th style={{width:'110px'}} className="text-left px-3 py-3 text-slate-400 font-medium">担当者</th>
               <th
