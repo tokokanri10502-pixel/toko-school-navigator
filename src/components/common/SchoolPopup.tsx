@@ -83,6 +83,16 @@ export function SchoolPopup({ school, onUpdate, onClose }: SchoolPopupProps) {
               }}>{school.category}</span>
             </div>
             <p className="text-gray-400 text-sm mt-1">{school.address}</p>
+            {/* 学部・学科 */}
+            {faculties.length > 0 && (
+              <div className="mt-2 flex flex-wrap gap-1.5">
+                {faculties.map((f, i) => (
+                  <span key={i} className="text-xs px-2 py-0.5 rounded text-gray-600" style={{ backgroundColor: '#f0e8c0', border: '1px solid #d0c890' }}>
+                    {f}
+                  </span>
+                ))}
+              </div>
+            )}
           </div>
           <button onClick={onClose} className="text-gray-400 hover:text-gray-700 transition-colors flex-shrink-0 p-1">
             <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -105,20 +115,6 @@ export function SchoolPopup({ school, onUpdate, onClose }: SchoolPopupProps) {
               </svg>
               公式HPを開く
             </a>
-          )}
-
-          {/* 学部・学科 */}
-          {faculties.length > 0 && (
-            <div>
-              <div className="text-sm text-gray-500 mb-2 font-medium">学部・学科</div>
-              <div className="flex flex-wrap gap-1.5">
-                {faculties.map((f, i) => (
-                  <span key={i} className="text-sm px-2 py-0.5 rounded text-gray-600" style={{ backgroundColor: '#f0e8c0', border: '1px solid #d0c890' }}>
-                    {f}
-                  </span>
-                ))}
-              </div>
-            </div>
           )}
 
           {/* フェーズ */}

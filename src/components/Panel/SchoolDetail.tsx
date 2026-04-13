@@ -103,6 +103,17 @@ export function SchoolDetail({ school, onUpdate, onClose }: SchoolDetailProps) {
             </a>
           )}
         </div>
+
+        {/* 学部・学科 */}
+        {faculties.length > 0 && (
+          <div className="mt-2 flex flex-wrap gap-1.5">
+            {faculties.map((f, i) => (
+              <span key={i} className="text-xs px-2 py-0.5 rounded bg-[#1e293b] border border-[#334155] text-slate-400">
+                {f}
+              </span>
+            ))}
+          </div>
+        )}
       </div>
 
       <div className="overflow-y-auto flex-1 px-4 py-4 space-y-5">
@@ -157,20 +168,6 @@ export function SchoolDetail({ school, onUpdate, onClose }: SchoolDetailProps) {
             className="w-full px-3 py-2 bg-[#1e293b] border border-[#334155] rounded text-sm text-slate-200 placeholder-slate-600 focus:outline-none focus:border-red-500 transition-colors"
           />
         </div>
-
-        {/* 学部・学科 */}
-        {faculties.length > 0 && (
-          <div>
-            <div className="text-sm text-slate-500 mb-2 font-medium">学部・学科</div>
-            <div className="flex flex-wrap gap-1.5">
-              {faculties.map((f, i) => (
-                <span key={i} className="text-sm px-2 py-0.5 rounded bg-[#1e293b] border border-[#334155] text-slate-400">
-                  {f}
-                </span>
-              ))}
-            </div>
-          </div>
-        )}
 
         {/* オープンキャンパス */}
         {school.open_campus_2025 && (
