@@ -11,6 +11,7 @@ type ProgressData = Record<string, {
   relation_stage: RelationStage;
   toko_person: string;
   support_items: string;
+  support_other_note: string;
   notes: string;
   open_campus_2026: string;
 }>;

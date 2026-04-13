@@ -14,6 +14,7 @@ export function SchoolDetail({ school, onUpdate, onClose }: SchoolDetailProps) {
   const [contactPerson, setContactPerson] = useState(school.contact_person);
   const [contactDate, setContactDate] = useState(school.contact_date);
   const [tokoPerson, setTokoPerson] = useState(school.toko_person || '');
+  const [otherNote, setOtherNote] = useState(school.support_other_note || '');
   const [notes, setNotes] = useState(school.notes);
   const [oc2026, setOc2026] = useState(school.open_campus_2026);
 
@@ -21,6 +22,7 @@ export function SchoolDetail({ school, onUpdate, onClose }: SchoolDetailProps) {
     setContactPerson(school.contact_person);
     setContactDate(school.contact_date);
     setTokoPerson(school.toko_person || '');
+    setOtherNote(school.support_other_note || '');
     setNotes(school.notes);
     setOc2026(school.open_campus_2026);
   }, [school.id]);
@@ -214,6 +216,30 @@ export function SchoolDetail({ school, onUpdate, onClose }: SchoolDetailProps) {
                 </span>
               </label>
             ))}
+            {/* その他 */}
+            <div className="space-y-1.5">
+              <label className="flex items-center gap-2.5 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={supportItems.includes('その他')}
+                  onChange={() => handleSupportItemToggle('その他')}
+                  className="w-4 h-4 accent-red-500"
+                />
+                <span className={`text-sm ${supportItems.includes('その他') ? 'text-slate-200' : 'text-slate-500'}`}>
+                  その他
+                </span>
+              </label>
+              {supportItems.includes('その他') && (
+                <input
+                  type="text"
+                  value={otherNote}
+                  onChange={(e) => setOtherNote(e.target.value)}
+                  onBlur={() => onUpdate(school.id, { support_other_note: otherNote })}
+                  placeholder="内容を入力..."
+                  className="w-full ml-6 px-3 py-1.5 bg-[#1e293b] border border-[#334155] rounded text-sm text-slate-200 placeholder-slate-600 focus:outline-none focus:border-red-500 transition-colors"
+                />
+              )}
+            </div>
           </div>
         </div>
 

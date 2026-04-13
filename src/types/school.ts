@@ -19,8 +19,9 @@ export interface School {
   contact_person: string;
   contact_date: string;
   relation_stage: string; // カンマ区切り複数選択可 例:"2,4"
-  toko_person: string;    // TOKO担当者
+  toko_person: string;        // TOKO担当者
   support_items: string;
+  support_other_note: string; // その他（自由記述）
   notes: string;
 }
 

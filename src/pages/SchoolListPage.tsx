@@ -24,7 +24,7 @@ export function SchoolListPage({ schools, onUpdate, selectedId, onSelectId, mapS
   const { filter, filtered, toggleType, toggleCategory, toggleStage, setSearch, resetFilter } = useFilter(schools);
   const [sortKey, setSortKey] = useState<SortKey>('type');
   const [sortDir, setSortDir] = useState<SortDir>('asc');
-  const [editingCell, setEditingCell] = useState<{ id: string; field: 'notes' | 'contact_person' | 'contact_date'; value: string } | null>(null);
+  const [editingCell, setEditingCell] = useState<{ id: string; field: 'notes' | 'contact_person' | 'contact_date' | 'toko_person'; value: string } | null>(null);
   const [phaseDropdown, setPhaseDropdown] = useState<string | null>(null);
   const [popupSchool, setPopupSchool] = useState<School | null>(null);
   const phaseDropdownRef = useRef<HTMLDivElement>(null);
@@ -92,7 +92,7 @@ export function SchoolListPage({ schools, onUpdate, selectedId, onSelectId, mapS
     }
   }
 
-  function cellValue(school: School, field: 'notes' | 'contact_person' | 'contact_date') {
+  function cellValue(school: School, field: 'notes' | 'contact_person' | 'contact_date' | 'toko_person') {
     if (editingCell?.id === school.id && editingCell.field === field) return editingCell.value;
     return school[field] || '';
   }
@@ -168,6 +168,7 @@ export function SchoolListPage({ schools, onUpdate, selectedId, onSelectId, mapS
               <th style={{width:'150px'}} className="text-left px-3 py-3 text-slate-400 font-medium">住所</th>
               <th style={{width:'220px'}} className="text-left px-3 py-3 text-slate-400 font-medium">学部・学科</th>
               <th style={{width:'160px'}} className="text-left px-3 py-3 text-slate-400 font-medium">フェーズ</th>
+              <th style={{width:'110px'}} className="text-left px-3 py-3 text-slate-400 font-medium">TOKO担当者</th>
               <th style={{width:'110px'}} className="text-left px-3 py-3 text-slate-400 font-medium">担当者</th>
               <th style={{width:'96px'}} className="text-left px-3 py-3 text-slate-400 font-medium">最終接触日</th>
               <th className="text-left px-3 py-3 text-slate-400 font-medium">メモ</th>
@@ -176,7 +177,7 @@ export function SchoolListPage({ schools, onUpdate, selectedId, onSelectId, mapS
           <tbody>
             {sorted.length === 0 && (
               <tr>
-                <td colSpan={10} className="text-center py-16 text-slate-500">
+                <td colSpan={11} className="text-center py-16 text-slate-500">
                   条件に一致する学校がありません
                 </td>
               </tr>
@@ -256,6 +257,17 @@ export function SchoolListPage({ schools, onUpdate, selectedId, onSelectId, mapS
                       </div>
                     )}
                   </div>
+                </td>
+                <td className="px-3 py-2.5" onClick={(e) => e.stopPropagation()}>
+                  <input
+                    type="text"
+                    value={cellValue(school, 'toko_person')}
+                    placeholder="TOKO担当者..."
+                    onFocus={() => setEditingCell({ id: school.id, field: 'toko_person', value: school.toko_person || '' })}
+                    onChange={(e) => setEditingCell({ id: school.id, field: 'toko_person', value: e.target.value })}
+                    onBlur={() => handleCellBlur(school)}
+                    className="w-full bg-transparent border border-transparent hover:border-[#334155] focus:border-[#ef4444] focus:bg-[#1e293b] rounded px-2 py-1 text-red-400 placeholder-slate-600 focus:text-red-300 focus:outline-none transition-colors text-sm"
+                  />
                 </td>
                 <td className="px-3 py-2.5" onClick={(e) => e.stopPropagation()}>
                   <input

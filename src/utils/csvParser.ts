@@ -26,6 +26,7 @@ export async function parseSchoolsCSV(url: string): Promise<School[]> {
           relation_stage: row.relation_stage || '0',
           toko_person: row.toko_person || '',
           support_items: row.support_items || '',
+          support_other_note: row.support_other_note || '',
           notes: row.notes || '',
         }));
         resolve(schools);
