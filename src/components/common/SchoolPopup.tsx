@@ -24,6 +24,11 @@ export function SchoolPopup({ school, onUpdate, onClose }: SchoolPopupProps) {
   const [news, setNews] = useState<NewsResult | null>(null);
   const [newsLoading, setNewsLoading] = useState(false);
 
+  useEffect(() => {
+    setContactPerson(school.contact_person || '');
+    setTokoPerson(school.toko_person || '');
+  }, [school.id]);
+
   // 背景クリックで閉じる
   function handleOverlayClick(e: React.MouseEvent<HTMLDivElement>) {
     if (e.target === e.currentTarget) onClose();
