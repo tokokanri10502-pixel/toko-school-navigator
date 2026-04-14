@@ -11,6 +11,9 @@ interface SchoolListProps {
 
 const STAGES: RelationStage[] = [0, 1, 2, 3, 4, 5, 6];
 
+// 管理者のみ変更可
+const SCHOOL_INFO_UPDATED = '2026年4月';
+
 export function SchoolList({ schools, allSchools, selectedId, onSelect }: SchoolListProps) {
   const listRef = useRef<HTMLDivElement>(null);
   const selectedItemRef = useRef<HTMLDivElement>(null);
@@ -32,7 +35,10 @@ export function SchoolList({ schools, allSchools, selectedId, onSelect }: School
     <div className="flex flex-col h-full overflow-hidden">
       {/* 進捗サマリー */}
       <div className="px-4 py-3 border-b border-[#1e3a5f] flex-shrink-0">
-        <div className="text-sm text-slate-500 mb-2">フェーズ別サマリー（全{allSchools.length}校）</div>
+        <div className="flex items-center justify-between mb-2">
+          <div className="text-sm text-slate-500">フェーズ別サマリー（全{allSchools.length}校）</div>
+          <div className="text-xs text-slate-600">学校情報更新月　{SCHOOL_INFO_UPDATED}</div>
+        </div>
         <div className="grid grid-cols-7 gap-1">
           {STAGES.map((stage) => {
             const count = allSchools.filter((s) => parseStages(s.relation_stage).includes(stage)).length;
