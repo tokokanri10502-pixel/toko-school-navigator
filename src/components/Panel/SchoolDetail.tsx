@@ -49,7 +49,15 @@ export function SchoolDetail({ school, onUpdate, onClose }: SchoolDetailProps) {
       const searchTarget = chunks.length > 0 ? chunks.join(' ') : text;
 
       const found = [...new Set(Array.from(searchTarget.matchAll(datePattern), (x) => x[0]))];
-      setOcPreview(found.length > 0 ? found.join('/') : '日程を抽出できませんでした');
+      // 月日でソート（例: "5月3日" → month=5, day=3）
+      const sorted = found.sort((a, b) => {
+        const parse = (s: string) => {
+          const m = s.match(/(\d+)月(\d+)日/);
+          return m ? parseInt(m[1]) * 100 + parseInt(m[2]) : 0;
+        };
+        return parse(a) - parse(b);
+      });
+      setOcPreview(sorted.length > 0 ? sorted.join('/') : '日程を抽出できませんでした');
     } catch {
       setOcPreview('取得に失敗しました');
     } finally {
@@ -65,10 +73,12 @@ export function SchoolDetail({ school, onUpdate, onClose }: SchoolDetailProps) {
     setNotes(school.notes);
     setNotesDate(school.notes_date || '');
     setOc2026(school.open_campus_2026);
+    setOcPreview(null);
+    setOcFetching(false);
   }, [school.id]);
 
   function handleSave() {
-    onUpdate(school.id, { contact_person: contactPerson, contact_date: contactDate, toko_person: tokoPerson, notes, notes_date: notesDate, open_campus_2026: oc2026 });
+    onUpdate(school.id, { contact_person: contactPerson, contact_date: contactDate, toko_person: tokoPerson, support_other_note: otherNote, notes, notes_date: notesDate, open_campus_2026: oc2026 });
   }
 
   function handleStageToggle(stage: RelationStage) {

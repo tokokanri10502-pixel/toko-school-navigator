@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import type { School, RelationStage } from '../types/school';
+import type { School } from '../types/school';
 import { parseSchoolsCSV } from '../utils/csvParser';
 import { GAS_URL } from '../utils/gasUrl';
 
@@ -8,7 +8,7 @@ const PROGRESS_KEY = 'toko-school-nav-progress';
 type ProgressData = Record<string, {
   contact_person: string;
   contact_date: string;
-  relation_stage: RelationStage;
+  relation_stage: string;
   toko_person: string;
   support_items: string;
   support_other_note: string;

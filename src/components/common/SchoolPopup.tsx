@@ -20,13 +20,17 @@ interface NewsResult {
 
 export function SchoolPopup({ school, onUpdate, onClose }: SchoolPopupProps) {
   const [contactPerson, setContactPerson] = useState(school.contact_person || '');
+  const [contactDate, setContactDate] = useState(school.contact_date || '');
   const [tokoPerson, setTokoPerson] = useState(school.toko_person || '');
   const [news, setNews] = useState<NewsResult | null>(null);
   const [newsLoading, setNewsLoading] = useState(false);
 
   useEffect(() => {
     setContactPerson(school.contact_person || '');
+    setContactDate(school.contact_date || '');
     setTokoPerson(school.toko_person || '');
+    setNews(null);
+    setNewsLoading(false);
   }, [school.id]);
 
   // 背景クリックで閉じる
@@ -172,21 +176,37 @@ export function SchoolPopup({ school, onUpdate, onClose }: SchoolPopupProps) {
             />
           </div>
 
-          {/* 担当者名 */}
-          <div>
-            <label className="text-sm text-gray-500 font-medium block mb-1.5">担当者名</label>
-            <input
-              type="text"
-              value={contactPerson}
-              onChange={(e) => setContactPerson(e.target.value)}
-              onBlur={() => {
-                if (contactPerson !== school.contact_person) {
-                  onUpdate(school.id, { contact_person: contactPerson });
-                }
-              }}
-              placeholder="担当者名を入力..."
-              className="w-full px-3 py-2 rounded text-sm text-gray-800 placeholder-gray-400 focus:outline-none transition-colors" style={{ backgroundColor: '#fdf8e0', border: '1px solid #d0c890' }}
-            />
+          {/* 担当者名・最終接触日 */}
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="text-sm text-gray-500 font-medium block mb-1.5">担当者名</label>
+              <input
+                type="text"
+                value={contactPerson}
+                onChange={(e) => setContactPerson(e.target.value)}
+                onBlur={() => {
+                  if (contactPerson !== school.contact_person) {
+                    onUpdate(school.id, { contact_person: contactPerson });
+                  }
+                }}
+                placeholder="担当者名を入力..."
+                className="w-full px-3 py-2 rounded text-sm text-gray-800 placeholder-gray-400 focus:outline-none transition-colors" style={{ backgroundColor: '#fdf8e0', border: '1px solid #d0c890' }}
+              />
+            </div>
+            <div>
+              <label className="text-sm text-gray-500 font-medium block mb-1.5">最終接触日</label>
+              <input
+                type="date"
+                value={contactDate}
+                onChange={(e) => setContactDate(e.target.value)}
+                onBlur={() => {
+                  if (contactDate !== school.contact_date) {
+                    onUpdate(school.id, { contact_date: contactDate });
+                  }
+                }}
+                className="w-full px-3 py-2 rounded text-sm text-gray-800 focus:outline-none transition-colors" style={{ backgroundColor: '#fdf8e0', border: '1px solid #d0c890' }}
+              />
+            </div>
           </div>
 
           {/* 最新情報 */}
