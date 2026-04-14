@@ -201,14 +201,14 @@ export function SchoolListPage({ schools, onUpdate, selectedId, onSelectId, mapS
               <th style={{width:'110px'}} className="text-left px-3 py-3 text-slate-400 font-medium">TOKO担当者</th>
               <th style={{width:'110px'}} className="text-left px-3 py-3 text-slate-400 font-medium">担当者</th>
               <th
-                style={{width:'96px'}}
+                style={{width:'130px'}}
                 className="text-left px-3 py-3 text-slate-400 font-medium cursor-pointer hover:text-white select-none"
                 onClick={() => handleSort('contact_date')}
               >
                 最終接触日 <SortIcon col="contact_date" />
               </th>
               <th
-                style={{width:'100px'}}
+                style={{width:'126px'}}
                 className="text-left px-3 py-3 text-slate-400 font-medium cursor-pointer hover:text-white select-none"
                 onClick={() => handleSort('notes_date')}
               >
@@ -325,24 +325,24 @@ export function SchoolListPage({ schools, onUpdate, selectedId, onSelectId, mapS
                 </td>
                 <td className="px-3 py-2.5" onClick={(e) => e.stopPropagation()}>
                   <input
-                    type="text"
+                    type="date"
                     value={cellValue(school, 'contact_date')}
-                    placeholder="YYYY-MM-DD"
                     onFocus={() => setEditingCell({ id: school.id, field: 'contact_date', value: school.contact_date || '' })}
                     onChange={(e) => setEditingCell({ id: school.id, field: 'contact_date', value: e.target.value })}
                     onBlur={() => handleCellBlur(school)}
-                    className="w-full bg-transparent border border-transparent hover:border-[#334155] focus:border-[#3b82f6] focus:bg-[#1e293b] rounded px-2 py-1 text-slate-400 placeholder-slate-600 focus:text-slate-200 focus:outline-none transition-colors text-sm"
+                    className="w-full bg-transparent border border-transparent hover:border-[#334155] focus:border-[#3b82f6] focus:bg-[#1e293b] rounded px-2 py-1 text-slate-400 focus:text-slate-200 focus:outline-none transition-colors text-sm"
+                    style={{ colorScheme: 'dark' }}
                   />
                 </td>
                 <td className="px-3 py-2.5" onClick={(e) => e.stopPropagation()}>
                   <input
-                    type="text"
+                    type="date"
                     value={cellValue(school, 'notes_date')}
-                    placeholder="YYYY-MM-DD"
                     onFocus={() => setEditingCell({ id: school.id, field: 'notes_date', value: school.notes_date || '' })}
                     onChange={(e) => setEditingCell({ id: school.id, field: 'notes_date', value: e.target.value })}
                     onBlur={() => handleCellBlur(school)}
-                    className="w-full bg-transparent border border-transparent hover:border-[#334155] focus:border-[#3b82f6] focus:bg-[#1e293b] rounded px-2 py-1 text-slate-400 placeholder-slate-600 focus:text-slate-200 focus:outline-none transition-colors text-sm"
+                    className="w-full bg-transparent border border-transparent hover:border-[#334155] focus:border-[#3b82f6] focus:bg-[#1e293b] rounded px-2 py-1 text-slate-400 focus:text-slate-200 focus:outline-none transition-colors text-sm"
+                    style={{ colorScheme: 'dark' }}
                   />
                 </td>
                 <td className="px-3 py-2.5" onClick={(e) => e.stopPropagation()}>
