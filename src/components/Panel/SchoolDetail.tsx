@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import type { School, RelationStage } from '../../types/school';
 import { STAGE_LABELS, STAGE_COLORS, SUPPORT_ITEM_OPTIONS, parseStages, formatStages } from '../../types/school';
+import { GAS_URL } from '../../utils/gasUrl';
 
 interface SchoolDetailProps {
   school: School;
@@ -18,6 +19,43 @@ export function SchoolDetail({ school, onUpdate, onClose }: SchoolDetailProps) {
   const [notes, setNotes] = useState(school.notes);
   const [notesDate, setNotesDate] = useState(school.notes_date || '');
   const [oc2026, setOc2026] = useState(school.open_campus_2026);
+  const [ocFetching, setOcFetching] = useState(false);
+  const [ocPreview, setOcPreview] = useState<string | null>(null);
+
+  async function handleFetchOC() {
+    if (!school.website) return;
+    setOcFetching(true);
+    setOcPreview(null);
+    try {
+      const res = await fetch(GAS_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain' },
+        body: JSON.stringify({ action: 'fetchNews', schoolId: school.id, url: school.website }),
+      });
+      const data = await res.json();
+      const text: string = data.content || '';
+
+      // OC関連キーワード周辺の日付を抽出
+      const ocKeywords = /オープンキャンパス|ＯＣ|OC|体験入学|学校見学|入学相談会/;
+      const datePattern = /(?:2026年)?(?:[1-9]|1[0-2])月(?:[1-9]|[12][0-9]|3[01])日/g;
+
+      // キーワード前後200文字を抽出して日付を探す
+      const chunks: string[] = [];
+      let m: RegExpExecArray | null;
+      const kwReg = new RegExp(ocKeywords.source, 'g');
+      while ((m = kwReg.exec(text)) !== null) {
+        chunks.push(text.slice(Math.max(0, m.index - 50), m.index + 200));
+      }
+      const searchTarget = chunks.length > 0 ? chunks.join(' ') : text;
+
+      const found = [...new Set(Array.from(searchTarget.matchAll(datePattern), (x) => x[0]))];
+      setOcPreview(found.length > 0 ? found.join('/') : '日程を抽出できませんでした');
+    } catch {
+      setOcPreview('取得に失敗しました');
+    } finally {
+      setOcFetching(false);
+    }
+  }
 
   useEffect(() => {
     setContactPerson(school.contact_person);
@@ -190,7 +228,47 @@ export function SchoolDetail({ school, onUpdate, onClose }: SchoolDetailProps) {
 
         {/* オープンキャンパス 2026 */}
         <div>
-          <div className="text-sm text-slate-500 mb-2 font-medium">オープンキャンパス 2026</div>
+          <div className="flex items-center justify-between mb-2">
+            <div className="text-sm text-slate-500 font-medium">オープンキャンパス 2026</div>
+            {school.website && (
+              <button
+                onClick={handleFetchOC}
+                disabled={ocFetching}
+                className="flex items-center gap-1 px-2 py-1 rounded text-xs transition-colors disabled:opacity-50"
+                style={{ backgroundColor: '#1e3a5f', color: '#60a5fa', border: '1px solid #3b82f6' }}
+              >
+                {ocFetching ? (
+                  <><div className="w-3 h-3 border border-blue-400 border-t-transparent rounded-full animate-spin" />取得中...</>
+                ) : (
+                  <><svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>HPから自動取得</>
+                )}
+              </button>
+            )}
+          </div>
+
+          {/* 抽出プレビュー */}
+          {ocPreview !== null && (
+            <div className="mb-2 p-2 rounded text-xs" style={{ backgroundColor: '#0f2a1a', border: '1px solid #166534' }}>
+              <div className="text-green-400 font-medium mb-1">抽出結果（確認してから反映してください）</div>
+              <div className="text-green-300 mb-2 break-all">{ocPreview}</div>
+              {!ocPreview.includes('できません') && !ocPreview.includes('失敗') && (
+                <button
+                  onClick={() => { setOc2026(ocPreview); setOcPreview(null); }}
+                  className="px-2 py-1 rounded text-xs text-white"
+                  style={{ backgroundColor: '#166534' }}
+                >
+                  この内容を反映する
+                </button>
+              )}
+              <button
+                onClick={() => setOcPreview(null)}
+                className="ml-2 px-2 py-1 rounded text-xs text-slate-400 hover:text-slate-200"
+              >
+                閉じる
+              </button>
+            </div>
+          )}
+
           <textarea
             value={oc2026}
             onChange={(e) => setOc2026(e.target.value)}
@@ -199,6 +277,7 @@ export function SchoolDetail({ school, onUpdate, onClose }: SchoolDetailProps) {
             rows={2}
             className="w-full px-3 py-2 bg-[#1e293b] border border-[#334155] rounded text-sm text-slate-200 placeholder-slate-600 focus:outline-none focus:border-yellow-500 transition-colors resize-none"
           />
+          <p className="text-xs text-slate-600 mt-1">※ 正確な情報は各校HPを確認してください。</p>
         </div>
 
         {/* 支援中の項目 */}
