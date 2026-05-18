@@ -64,7 +64,9 @@ export function ActivityTimeline({ activities, onMarkDone, onDelete, variant = '
         nextActionDateText: 'text-slate-500',
       };
 
-  const sorted = [...activities].sort((a, b) => (a.activity_date < b.activity_date ? 1 : -1));
+  // フェーズ変更ログは非表示（GASには記録は残る）
+  const visible = activities.filter((a) => a.type !== 'phase_change');
+  const sorted = [...visible].sort((a, b) => (a.activity_date < b.activity_date ? 1 : -1));
 
   if (sorted.length === 0) {
     return (
