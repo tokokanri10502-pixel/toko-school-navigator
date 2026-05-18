@@ -4,6 +4,7 @@ import { STAGE_COLORS, STAGE_LABELS, STAGE_SHORT, parseStages, formatStages } fr
 import { useFilter } from '../hooks/useFilter';
 import { FilterBar } from '../components/Panel/FilterBar';
 import { SchoolPopup } from '../components/common/SchoolPopup';
+import type { Activity } from '../types/activity';
 
 interface SchoolListPageProps {
   schools: School[];
@@ -11,6 +12,11 @@ interface SchoolListPageProps {
   selectedId?: string | null;
   onSelectId?: (id: string | null) => void;
   mapSelectedId?: string | null; // 地図ピンからの選択（2番目移動用）
+  activities: Activity[];
+  currentUser: string;
+  onAddActivity: (a: Omit<Activity, 'id' | 'recorded_at'>) => Promise<void>;
+  onMarkDone: (id: string, done: boolean) => void;
+  onDeleteActivity: (id: string) => void;
 }
 
 type SortKey = 'type' | 'category' | 'phase' | 'contact_date' | 'notes_date';
@@ -20,7 +26,7 @@ const STAGES: RelationStage[] = [0, 1, 2, 3, 4, 5, 6];
 const TYPE_ORDER: Record<string, number> = { '大学': 0, '短期大学': 1, '専門学校': 2 };
 const CATEGORY_ORDER: Record<string, number> = { '国公立': 0, '私立': 1 };
 
-export function SchoolListPage({ schools, onUpdate, selectedId, onSelectId, mapSelectedId }: SchoolListPageProps) {
+export function SchoolListPage({ schools, onUpdate, selectedId, onSelectId, mapSelectedId, activities, currentUser, onAddActivity, onMarkDone, onDeleteActivity }: SchoolListPageProps) {
   const { filter, filtered, toggleType, toggleCategory, toggleStage, setSearch, resetFilter } = useFilter(schools);
   const [sortKey, setSortKey] = useState<SortKey>('type');
   const [sortDir, setSortDir] = useState<SortDir>('asc');
@@ -131,6 +137,11 @@ export function SchoolListPage({ schools, onUpdate, selectedId, onSelectId, mapS
             setPopupSchool((prev) => prev ? { ...prev, ...updates } : null);
           }}
           onClose={() => setPopupSchool(null)}
+          activities={activities}
+          currentUser={currentUser}
+          onAddActivity={onAddActivity}
+          onMarkDone={onMarkDone}
+          onDeleteActivity={onDeleteActivity}
         />
       )}
       {/* フィルター */}

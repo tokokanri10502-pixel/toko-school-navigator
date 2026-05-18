@@ -1,44 +1,34 @@
 import { useState, useEffect } from 'react';
 import type { School, RelationStage } from '../../types/school';
-import { GAS_URL } from '../../utils/gasUrl';
 import { STAGE_LABELS, STAGE_COLORS, STAGE_SHORT, parseStages, formatStages } from '../../types/school';
+import type { Activity } from '../../types/activity';
+import { ActivityForm } from '../Panel/ActivityForm';
+import { ActivityTimeline } from '../Panel/ActivityTimeline';
 
 interface SchoolPopupProps {
   school: School;
   onUpdate: (id: string, updates: Partial<School>) => void;
   onClose: () => void;
+  activities: Activity[];
+  currentUser: string;
+  onAddActivity: (a: Omit<Activity, 'id' | 'recorded_at'>) => Promise<void>;
+  onMarkDone: (id: string, done: boolean) => void;
+  onDeleteActivity: (id: string) => void;
 }
 
 const STAGES: RelationStage[] = [0, 1, 2, 3, 4, 5, 6];
 
-interface NewsResult {
-  content?: string;
-  fetchedAt?: string;
-  cached?: boolean;
-  error?: string;
-}
-
-export function SchoolPopup({ school, onUpdate, onClose }: SchoolPopupProps) {
-  const [contactPerson, setContactPerson] = useState(school.contact_person || '');
-  const [contactDate, setContactDate] = useState(school.contact_date || '');
+export function SchoolPopup({ school, onUpdate, onClose, activities, currentUser, onAddActivity, onMarkDone, onDeleteActivity }: SchoolPopupProps) {
   const [tokoPerson, setTokoPerson] = useState(school.toko_person || '');
-  const [news, setNews] = useState<NewsResult | null>(null);
-  const [newsLoading, setNewsLoading] = useState(false);
 
   useEffect(() => {
-    setContactPerson(school.contact_person || '');
-    setContactDate(school.contact_date || '');
     setTokoPerson(school.toko_person || '');
-    setNews(null);
-    setNewsLoading(false);
   }, [school.id]);
 
-  // 背景クリックで閉じる
   function handleOverlayClick(e: React.MouseEvent<HTMLDivElement>) {
     if (e.target === e.currentTarget) onClose();
   }
 
-  // フェーズトグル
   function handleStageToggle(stage: RelationStage) {
     const current = parseStages(school.relation_stage);
     let next: RelationStage[];
@@ -52,25 +42,21 @@ export function SchoolPopup({ school, onUpdate, onClose }: SchoolPopupProps) {
     onUpdate(school.id, { relation_stage: formatStages(next) });
   }
 
-  // 最新情報を取得
-  useEffect(() => {
-    if (!school.website) return;
-    setNewsLoading(true);
-    fetch(GAS_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'text/plain' },
-      body: JSON.stringify({ action: 'fetchNews', schoolId: school.id, url: school.website }),
-    })
-      .then((r) => r.json())
-      .then((data) => setNews(data))
-      .catch(() => setNews({ error: '取得に失敗しました' }))
-      .finally(() => setNewsLoading(false));
-  }, [school.id, school.website]);
+  async function handleAddActivity(activity: Omit<Activity, 'id' | 'recorded_at'>) {
+    await onAddActivity(activity);
+    onUpdate(school.id, {
+      contact_date: activity.activity_date,
+      notes: activity.content,
+      notes_date: activity.activity_date,
+    });
+  }
 
   const activeStages = parseStages(school.relation_stage);
   const faculties = school.faculty
     ? school.faculty.split('/').map((s) => s.trim()).filter(Boolean)
     : [];
+
+  const schoolActivities = activities.filter((a) => a.school_id === school.id);
 
   return (
     <div
@@ -78,7 +64,7 @@ export function SchoolPopup({ school, onUpdate, onClose }: SchoolPopupProps) {
       style={{ backgroundColor: 'rgba(0,0,0,0.6)' }}
       onClick={handleOverlayClick}
     >
-      <div className="rounded-xl shadow-2xl w-full max-w-xl mx-4 max-h-[85vh] flex flex-col" style={{ backgroundColor: 'rgba(255, 253, 240, 0.82)', border: '1px solid #e8e0c0', backdropFilter: 'blur(8px)' }}>
+      <div className="rounded-xl shadow-2xl w-full max-w-xl mx-4 max-h-[85vh] flex flex-col" style={{ backgroundColor: 'rgba(255, 253, 240, 0.94)', border: '1px solid #e8e0c0', backdropFilter: 'blur(8px)' }}>
         {/* ヘッダー */}
         <div className="px-6 py-4 flex items-start justify-between gap-3 flex-shrink-0" style={{ borderBottom: '1px solid #e8e0c0' }}>
           <div>
@@ -92,7 +78,6 @@ export function SchoolPopup({ school, onUpdate, onClose }: SchoolPopupProps) {
               }}>{school.category}</span>
             </div>
             <p className="text-gray-400 text-sm mt-1">{school.address}</p>
-            {/* 学部・学科 */}
             {faculties.length > 0 && (
               <div className="mt-2 flex flex-wrap gap-1.5">
                 {faculties.map((f, i) => (
@@ -111,7 +96,7 @@ export function SchoolPopup({ school, onUpdate, onClose }: SchoolPopupProps) {
         </div>
 
         <div className="overflow-y-auto flex-1 px-6 py-5 space-y-6">
-          {/* HP ボタン */}
+          {/* HPボタン */}
           {school.website && (
             <a
               href={school.website}
@@ -159,6 +144,23 @@ export function SchoolPopup({ school, onUpdate, onClose }: SchoolPopupProps) {
             )}
           </div>
 
+          {/* 活動記録 */}
+          <div>
+            <div className="text-sm text-gray-500 mb-2 font-medium">活動記録</div>
+            <div className="space-y-3">
+              <ActivityForm
+                schoolId={school.id}
+                currentUser={currentUser}
+                onSubmit={handleAddActivity}
+              />
+              <ActivityTimeline
+                activities={schoolActivities}
+                onMarkDone={onMarkDone}
+                onDelete={onDeleteActivity}
+              />
+            </div>
+          </div>
+
           {/* TOKO担当者 */}
           <div>
             <label className="text-sm text-gray-500 font-medium block mb-1.5">TOKO担当者</label>
@@ -174,67 +176,6 @@ export function SchoolPopup({ school, onUpdate, onClose }: SchoolPopupProps) {
               placeholder="TOKO担当者名を入力..."
               className="w-full px-3 py-2 rounded text-sm text-gray-800 placeholder-gray-400 focus:outline-none transition-colors" style={{ backgroundColor: '#fdf8e0', border: '1px solid #d0c890' }}
             />
-          </div>
-
-          {/* 担当者名・最終接触日 */}
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label className="text-sm text-gray-500 font-medium block mb-1.5">担当者名</label>
-              <input
-                type="text"
-                value={contactPerson}
-                onChange={(e) => setContactPerson(e.target.value)}
-                onBlur={() => {
-                  if (contactPerson !== school.contact_person) {
-                    onUpdate(school.id, { contact_person: contactPerson });
-                  }
-                }}
-                placeholder="担当者名を入力..."
-                className="w-full px-3 py-2 rounded text-sm text-gray-800 placeholder-gray-400 focus:outline-none transition-colors" style={{ backgroundColor: '#fdf8e0', border: '1px solid #d0c890' }}
-              />
-            </div>
-            <div>
-              <label className="text-sm text-gray-500 font-medium block mb-1.5">最終接触日</label>
-              <input
-                type="date"
-                value={contactDate}
-                onChange={(e) => setContactDate(e.target.value)}
-                onBlur={() => {
-                  if (contactDate !== school.contact_date) {
-                    onUpdate(school.id, { contact_date: contactDate });
-                  }
-                }}
-                className="w-full px-3 py-2 rounded text-sm text-gray-800 focus:outline-none transition-colors" style={{ backgroundColor: '#fdf8e0', border: '1px solid #d0c890' }}
-              />
-            </div>
-          </div>
-
-          {/* 最新情報 */}
-          <div>
-            <div className="flex items-center justify-between mb-2">
-              <div className="text-sm text-gray-500 font-medium">最新情報（HP自動取得）</div>
-              {news?.fetchedAt && (
-                <span className="text-xs text-gray-400">
-                  {news.cached ? '📦 キャッシュ' : '🔄 最新'} · {news.fetchedAt}
-                </span>
-              )}
-            </div>
-            <div className="rounded-lg p-4 min-h-[120px]" style={{ backgroundColor: '#fdf8e0', border: '1px solid #d0c890' }}>
-              {!school.website ? (
-                <p className="text-gray-400 text-sm">HPが登録されていません</p>
-              ) : newsLoading ? (
-                <div className="flex items-center gap-2 text-gray-400 text-sm">
-                  <div className="w-4 h-4 border-2 border-gray-300 border-t-blue-400 rounded-full animate-spin" />
-                  取得中...
-                </div>
-              ) : news?.error ? (
-                <p className="text-red-500 text-sm">⚠️ {news.error}</p>
-              ) : news?.content ? (
-                <pre className="text-gray-700 text-xs leading-relaxed whitespace-pre-wrap font-sans">{news.content}</pre>
-              ) : (
-                <p className="text-gray-400 text-sm">情報を取得できませんでした</p>
-              )}
-            </div>
           </div>
         </div>
       </div>

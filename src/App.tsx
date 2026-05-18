@@ -142,7 +142,18 @@ function AuthenticatedApp() {
 
       {!loading && !error && (
         <div className={`flex-1 overflow-hidden ${page === 'list' ? '' : 'hidden'}`}>
-          <SchoolListPage schools={schools} onUpdate={updateSchoolWithLog} selectedId={selectedId} onSelectId={setSelectedId} mapSelectedId={mapSelectedId} />
+          <SchoolListPage
+            schools={schools}
+            onUpdate={updateSchoolWithLog}
+            selectedId={selectedId}
+            onSelectId={setSelectedId}
+            mapSelectedId={mapSelectedId}
+            activities={activities}
+            currentUser={currentUser}
+            onAddActivity={addActivity}
+            onMarkDone={markDone}
+            onDeleteActivity={deleteActivity}
+          />
         </div>
       )}
 
