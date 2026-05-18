@@ -2,22 +2,26 @@ import { useState, useEffect } from 'react';
 import type { School, RelationStage } from '../../types/school';
 import { STAGE_LABELS, STAGE_COLORS, SUPPORT_ITEM_OPTIONS, parseStages, formatStages } from '../../types/school';
 import { GAS_URL } from '../../utils/gasUrl';
+import type { Activity } from '../../types/activity';
+import { ActivityForm } from './ActivityForm';
+import { ActivityTimeline } from './ActivityTimeline';
 
 interface SchoolDetailProps {
   school: School;
   onUpdate: (id: string, updates: Partial<School>) => void;
   onClose: () => void;
+  activities: Activity[];
+  currentUser: string;
+  onAddActivity: (a: Omit<Activity, 'id' | 'recorded_at'>) => Promise<void>;
+  onMarkDone: (id: string, done: boolean) => void;
+  onDeleteActivity: (id: string) => void;
 }
 
 const STAGES: RelationStage[] = [0, 1, 2, 3, 4, 5, 6];
 
-export function SchoolDetail({ school, onUpdate, onClose }: SchoolDetailProps) {
-  const [contactPerson, setContactPerson] = useState(school.contact_person);
-  const [contactDate, setContactDate] = useState(school.contact_date);
+export function SchoolDetail({ school, onUpdate, onClose, activities, currentUser, onAddActivity, onMarkDone, onDeleteActivity }: SchoolDetailProps) {
   const [tokoPerson, setTokoPerson] = useState(school.toko_person || '');
   const [otherNote, setOtherNote] = useState(school.support_other_note || '');
-  const [notes, setNotes] = useState(school.notes);
-  const [notesDate, setNotesDate] = useState(school.notes_date || '');
   const [oc2026, setOc2026] = useState(school.open_campus_2026);
   const [ocFetching, setOcFetching] = useState(false);
   const [ocPreview, setOcPreview] = useState<string | null>(null);
@@ -35,11 +39,9 @@ export function SchoolDetail({ school, onUpdate, onClose }: SchoolDetailProps) {
       const data = await res.json();
       const text: string = data.content || '';
 
-      // OC関連キーワード周辺の日付を抽出
       const ocKeywords = /オープンキャンパス|ＯＣ|OC|体験入学|学校見学|入学相談会/;
       const datePattern = /(?:2026年)?(?:[1-9]|1[0-2])月(?:[1-9]|[12][0-9]|3[01])日/g;
 
-      // キーワード前後200文字を抽出して日付を探す
       const chunks: string[] = [];
       let m: RegExpExecArray | null;
       const kwReg = new RegExp(ocKeywords.source, 'g');
@@ -49,7 +51,6 @@ export function SchoolDetail({ school, onUpdate, onClose }: SchoolDetailProps) {
       const searchTarget = chunks.length > 0 ? chunks.join(' ') : text;
 
       const found = [...new Set(Array.from(searchTarget.matchAll(datePattern), (x) => x[0]))];
-      // 月日でソート（例: "5月3日" → month=5, day=3）
       const sorted = found.sort((a, b) => {
         const parse = (s: string) => {
           const m = s.match(/(\d+)月(\d+)日/);
@@ -66,20 +67,12 @@ export function SchoolDetail({ school, onUpdate, onClose }: SchoolDetailProps) {
   }
 
   useEffect(() => {
-    setContactPerson(school.contact_person);
-    setContactDate(school.contact_date);
     setTokoPerson(school.toko_person || '');
     setOtherNote(school.support_other_note || '');
-    setNotes(school.notes);
-    setNotesDate(school.notes_date || '');
     setOc2026(school.open_campus_2026);
     setOcPreview(null);
     setOcFetching(false);
   }, [school.id]);
-
-  function handleSave() {
-    onUpdate(school.id, { contact_person: contactPerson, contact_date: contactDate, toko_person: tokoPerson, support_other_note: otherNote, notes, notes_date: notesDate, open_campus_2026: oc2026 });
-  }
 
   function handleStageToggle(stage: RelationStage) {
     const current = parseStages(school.relation_stage);
@@ -87,9 +80,9 @@ export function SchoolDetail({ school, onUpdate, onClose }: SchoolDetailProps) {
     if (current.includes(stage)) {
       next = current.filter((s) => s !== stage);
     } else if (stage === 0) {
-      next = [0]; // P0選択時は他を全クリア
+      next = [0];
     } else {
-      next = [...current, stage].filter((s) => s !== 0); // 1〜6選択時はP0を自動削除
+      next = [...current, stage].filter((s) => s !== 0);
     }
     onUpdate(school.id, { relation_stage: formatStages(next) });
   }
@@ -100,6 +93,16 @@ export function SchoolDetail({ school, onUpdate, onClose }: SchoolDetailProps) {
     onUpdate(school.id, { support_items: next.join(',') });
   }
 
+  async function handleAddActivity(activity: Omit<Activity, 'id' | 'recorded_at'>) {
+    await onAddActivity(activity);
+    // 学校側のキャッシュも更新（一覧での「最終接触日」表示用）
+    onUpdate(school.id, {
+      contact_date: activity.activity_date,
+      notes: activity.content,
+      notes_date: activity.activity_date,
+    });
+  }
+
   const supportItems = school.support_items
     ? school.support_items.split(',').map((s) => s.trim()).filter(Boolean)
     : [];
@@ -107,6 +110,8 @@ export function SchoolDetail({ school, onUpdate, onClose }: SchoolDetailProps) {
   const faculties = school.faculty
     ? school.faculty.split('/').map((s) => s.trim()).filter(Boolean)
     : [];
+
+  const schoolActivities = activities.filter((a) => a.school_id === school.id);
 
   return (
     <div className="flex flex-col h-full overflow-hidden">
@@ -136,7 +141,6 @@ export function SchoolDetail({ school, onUpdate, onClose }: SchoolDetailProps) {
           </button>
         </div>
 
-        {/* 連絡先 */}
         <div className="flex items-center gap-4 mt-2">
           {school.tel && (
             <a href={`tel:${school.tel}`} className="flex items-center gap-1.5 text-sm text-slate-400 hover:text-blue-400">
@@ -156,7 +160,6 @@ export function SchoolDetail({ school, onUpdate, onClose }: SchoolDetailProps) {
           )}
         </div>
 
-        {/* 学部・学科 */}
         {faculties.length > 0 && (
           <div className="mt-2 flex flex-wrap gap-1.5">
             {faculties.map((f, i) => (
@@ -169,7 +172,7 @@ export function SchoolDetail({ school, onUpdate, onClose }: SchoolDetailProps) {
       </div>
 
       <div className="overflow-y-auto flex-1 px-4 py-4 space-y-5">
-        {/* フェーズ進捗バー */}
+        {/* フェーズ */}
         <div>
           <div className="text-sm text-slate-500 mb-2 font-medium">営業フェーズ</div>
           <div className="flex items-center gap-1">
@@ -208,6 +211,23 @@ export function SchoolDetail({ school, onUpdate, onClose }: SchoolDetailProps) {
           </div>
         </div>
 
+        {/* ===== 活動記録 (新規) ===== */}
+        <div>
+          <div className="text-sm text-slate-500 mb-2 font-medium">活動記録</div>
+          <div className="space-y-3">
+            <ActivityForm
+              schoolId={school.id}
+              currentUser={currentUser}
+              onSubmit={handleAddActivity}
+            />
+            <ActivityTimeline
+              activities={schoolActivities}
+              onMarkDone={onMarkDone}
+              onDelete={onDeleteActivity}
+            />
+          </div>
+        </div>
+
         {/* TOKO担当者 */}
         <div>
           <label className="text-sm text-slate-500 font-medium block mb-1">TOKO担当者</label>
@@ -215,7 +235,7 @@ export function SchoolDetail({ school, onUpdate, onClose }: SchoolDetailProps) {
             type="text"
             value={tokoPerson}
             onChange={(e) => setTokoPerson(e.target.value)}
-            onBlur={handleSave}
+            onBlur={() => onUpdate(school.id, { toko_person: tokoPerson })}
             placeholder="未入力"
             className="w-full px-3 py-2 bg-[#1e293b] border border-[#334155] rounded text-sm text-slate-200 placeholder-slate-600 focus:outline-none focus:border-red-500 transition-colors"
           />
@@ -236,7 +256,6 @@ export function SchoolDetail({ school, onUpdate, onClose }: SchoolDetailProps) {
           </div>
         )}
 
-        {/* オープンキャンパス 2026 */}
         <div>
           <div className="flex items-center justify-between mb-2">
             <div className="text-sm text-slate-500 font-medium">オープンキャンパス 2026</div>
@@ -256,7 +275,6 @@ export function SchoolDetail({ school, onUpdate, onClose }: SchoolDetailProps) {
             )}
           </div>
 
-          {/* 抽出プレビュー */}
           {ocPreview !== null && (
             <div className="mb-2 p-2 rounded text-xs" style={{ backgroundColor: '#0f2a1a', border: '1px solid #166534' }}>
               <div className="text-green-400 font-medium mb-1">抽出結果（確認してから反映してください）</div>
@@ -282,7 +300,7 @@ export function SchoolDetail({ school, onUpdate, onClose }: SchoolDetailProps) {
           <textarea
             value={oc2026}
             onChange={(e) => setOc2026(e.target.value)}
-            onBlur={handleSave}
+            onBlur={() => onUpdate(school.id, { open_campus_2026: oc2026 })}
             placeholder="例：6月15日/7月20日/8月3日"
             rows={2}
             className="w-full px-3 py-2 bg-[#1e293b] border border-[#334155] rounded text-sm text-slate-200 placeholder-slate-600 focus:outline-none focus:border-yellow-500 transition-colors resize-none"
@@ -307,7 +325,6 @@ export function SchoolDetail({ school, onUpdate, onClose }: SchoolDetailProps) {
                 </span>
               </label>
             ))}
-            {/* その他 */}
             <div className="space-y-1.5">
               <label className="flex items-center gap-2.5 cursor-pointer w-fit">
                 <input
@@ -332,55 +349,6 @@ export function SchoolDetail({ school, onUpdate, onClose }: SchoolDetailProps) {
               )}
             </div>
           </div>
-        </div>
-
-        {/* 担当者・接触日 */}
-        <div className="grid grid-cols-2 gap-3">
-          <div>
-            <label className="text-sm text-slate-500 font-medium block mb-1">担当者名</label>
-            <input
-              type="text"
-              value={contactPerson}
-              onChange={(e) => setContactPerson(e.target.value)}
-              onBlur={handleSave}
-              placeholder="未入力"
-              className="w-full px-3 py-2 bg-[#1e293b] border border-[#334155] rounded text-sm text-slate-200 placeholder-slate-600 focus:outline-none focus:border-blue-500 transition-colors"
-            />
-          </div>
-          <div>
-            <label className="text-sm text-slate-500 font-medium block mb-1">最終接触日</label>
-            <input
-              type="date"
-              value={contactDate}
-              onChange={(e) => setContactDate(e.target.value)}
-              onBlur={handleSave}
-              className="w-full px-3 py-2 bg-[#1e293b] border border-[#334155] rounded text-sm text-slate-200 focus:outline-none focus:border-blue-500 transition-colors"
-              style={{ colorScheme: 'dark' }}
-            />
-          </div>
-        </div>
-
-        {/* メモ */}
-        <div>
-          <div className="flex items-center justify-between mb-1">
-            <label className="text-sm text-slate-500 font-medium">メモ</label>
-            <input
-              type="date"
-              value={notesDate}
-              onChange={(e) => setNotesDate(e.target.value)}
-              onBlur={handleSave}
-              className="px-2 py-1 bg-[#1e293b] border border-[#334155] rounded text-xs text-slate-400 focus:outline-none focus:border-blue-500 transition-colors"
-              style={{ colorScheme: 'dark' }}
-            />
-          </div>
-          <textarea
-            value={notes}
-            onChange={(e) => setNotes(e.target.value)}
-            onBlur={handleSave}
-            placeholder="商談メモ、次回アクションなど..."
-            rows={4}
-            className="w-full px-3 py-2 bg-[#1e293b] border border-[#334155] rounded text-sm text-slate-200 placeholder-slate-600 focus:outline-none focus:border-blue-500 transition-colors resize-none"
-          />
         </div>
       </div>
     </div>

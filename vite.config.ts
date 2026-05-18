@@ -19,7 +19,11 @@ function gasProxy(): Plugin {
               redirect: 'follow',
             };
             if (body) options.body = body;
-            const response = await fetch(GAS_ENDPOINT, options);
+            // クエリ文字列を保持して転送（例: ?resource=activities）
+            const reqUrl = req.url ?? '';
+            const queryIdx = reqUrl.indexOf('?');
+            const query = queryIdx >= 0 ? reqUrl.slice(queryIdx) : '';
+            const response = await fetch(GAS_ENDPOINT + query, options);
             const text = await response.text();
             res.setHeader('Content-Type', 'application/json');
             res.setHeader('Access-Control-Allow-Origin', '*');
