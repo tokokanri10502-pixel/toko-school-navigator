@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import type { School } from '../types/school';
-import { STAGE_COLORS, STAGE_LABELS, parseStages, highestStage } from '../types/school';
+import { parseStages } from '../types/school';
 import type { Activity } from '../types/activity';
 import { ACTIVITY_TYPE_COLORS, todayStr, daysBetween } from '../types/activity';
 
@@ -12,7 +12,6 @@ interface HomePageProps {
   onMarkDone: (id: string, done: boolean) => void;
 }
 
-const STALE_DAYS = 30;
 const RECENT_DAYS = 7;
 
 function schoolName(schools: School[], id: string): string {
@@ -56,27 +55,6 @@ export function HomePage({ schools, activities, currentUser, onSelectSchool, onM
         return a.recorded_at < b.recorded_at ? 1 : -1;
       });
   }, [activities, today]);
-
-  // 放置検知: Phase 1+ かつ最終活動が STALE_DAYS 以上前
-  const stale = useMemo(() => {
-    // school毎の最終活動日
-    const lastBySchool = new Map<string, string>();
-    activities.forEach((a) => {
-      const prev = lastBySchool.get(a.school_id);
-      if (!prev || prev < a.activity_date) lastBySchool.set(a.school_id, a.activity_date);
-    });
-
-    return schools
-      .filter((s) => highestStage(s.relation_stage) >= 1)
-      .map((s) => {
-        const last = lastBySchool.get(s.id) || s.contact_date || '';
-        const days = last ? daysBetween(last, today) : 9999;
-        return { school: s, last, days };
-      })
-      .filter((x) => x.days >= STALE_DAYS)
-      .sort((a, b) => b.days - a.days)
-      .slice(0, 20);
-  }, [schools, activities, today]);
 
   return (
     <div className="h-full overflow-y-auto bg-[#0f172a] px-6 py-6">
@@ -213,48 +191,6 @@ export function HomePage({ schools, activities, currentUser, onSelectSchool, onM
                       ) : (
                         <div className="text-sm text-slate-300 ml-14 line-clamp-2">{a.content}</div>
                       )}
-                    </button>
-                  </li>
-                );
-              })}
-            </ul>
-          )}
-        </section>
-
-        {/* 放置検知 */}
-        <section className="bg-[#1e293b] border border-red-500/30 rounded-xl overflow-hidden">
-          <div className="px-5 py-3 bg-red-500/10 border-b border-red-500/20 flex items-center gap-2">
-            <svg className="w-5 h-5 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-            <h3 className="text-base font-bold text-red-300">放置検知（Phase1以上で{STALE_DAYS}日以上接触なし）</h3>
-            <span className="ml-auto text-xs text-red-200/70">{stale.length}件</span>
-          </div>
-          {stale.length === 0 ? (
-            <div className="px-5 py-6 text-center text-sm text-slate-500">放置されている学校はありません 👍</div>
-          ) : (
-            <ul className="divide-y divide-[#334155]">
-              {stale.map(({ school, last, days }) => {
-                const highest = highestStage(school.relation_stage);
-                const phaseColor = STAGE_COLORS[highest];
-                return (
-                  <li key={school.id} className="px-5 py-3 hover:bg-[#0f172a]/50">
-                    <button
-                      onClick={() => onSelectSchool(school.id)}
-                      className="w-full text-left flex items-center gap-3 group"
-                    >
-                      <span className="text-sm font-medium text-white group-hover:text-blue-400 transition-colors flex-1 min-w-0 truncate">
-                        {school.name}
-                      </span>
-                      <span
-                        className="text-xs px-2 py-0.5 rounded font-medium flex-shrink-0"
-                        style={{ color: phaseColor, backgroundColor: `${phaseColor}22`, border: `1px solid ${phaseColor}55` }}
-                      >
-                        P{highest} {STAGE_LABELS[highest]}
-                      </span>
-                      <span className="text-xs text-red-400 font-medium flex-shrink-0">
-                        {last ? `${days}日経過` : '記録なし'}
-                      </span>
                     </button>
                   </li>
                 );
