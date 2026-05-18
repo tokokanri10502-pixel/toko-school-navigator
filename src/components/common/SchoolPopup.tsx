@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import type { School, RelationStage } from '../../types/school';
-import { STAGE_LABELS, STAGE_COLORS, STAGE_SHORT, parseStages, formatStages } from '../../types/school';
+import { STAGE_LABELS, STAGE_COLORS, parseStages, formatStages } from '../../types/school';
 import type { Activity } from '../../types/activity';
 import { ActivityForm } from '../Panel/ActivityForm';
 import { ActivityTimeline } from '../Panel/ActivityTimeline';
@@ -133,15 +133,6 @@ export function SchoolPopup({ school, onUpdate, onClose, activities, currentUser
                 );
               })}
             </div>
-            {activeStages.length > 0 && (
-              <div className="flex gap-1 mt-2 flex-wrap">
-                {activeStages.map((s) => (
-                  <span key={s} className="text-xs px-2 py-0.5 rounded font-medium" style={{ color: STAGE_COLORS[s], backgroundColor: `${STAGE_COLORS[s]}18`, border: `1px solid ${STAGE_COLORS[s]}55` }}>
-                    {STAGE_SHORT[s]}
-                  </span>
-                ))}
-              </div>
-            )}
           </div>
 
           {/* 活動記録 */}
@@ -152,11 +143,13 @@ export function SchoolPopup({ school, onUpdate, onClose, activities, currentUser
                 schoolId={school.id}
                 currentUser={currentUser}
                 onSubmit={handleAddActivity}
+                variant="light"
               />
               <ActivityTimeline
                 activities={schoolActivities}
                 onMarkDone={onMarkDone}
                 onDelete={onDeleteActivity}
+                variant="light"
               />
             </div>
           </div>
