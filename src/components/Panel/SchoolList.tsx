@@ -80,12 +80,6 @@ export function SchoolList({ schools, allSchools, selectedId, onSelect }: School
                     <span className="text-sm text-slate-400">{school.type}</span>
                     <span className="text-slate-600">·</span>
                     <span className="text-sm text-slate-400">{school.category}</span>
-                    {school.toko_person && (
-                      <>
-                        <span className="text-slate-600">·</span>
-                        <span className="text-sm text-red-400">TOKO:{school.toko_person}</span>
-                      </>
-                    )}
                     {school.contact_person && (
                       <>
                         <span className="text-slate-600">·</span>

@@ -1,4 +1,3 @@
-import { useState, useEffect } from 'react';
 import type { School, RelationStage } from '../../types/school';
 import { STAGE_LABELS, STAGE_COLORS, parseStages, formatStages } from '../../types/school';
 import type { Activity } from '../../types/activity';
@@ -19,12 +18,6 @@ interface SchoolPopupProps {
 const STAGES: RelationStage[] = [0, 1, 2, 3, 4, 5, 6];
 
 export function SchoolPopup({ school, onUpdate, onClose, activities, currentUser, onAddActivity, onMarkDone, onDeleteActivity }: SchoolPopupProps) {
-  const [tokoPerson, setTokoPerson] = useState(school.toko_person || '');
-
-  useEffect(() => {
-    setTokoPerson(school.toko_person || '');
-  }, [school.id]);
-
   function handleOverlayClick(e: React.MouseEvent<HTMLDivElement>) {
     if (e.target === e.currentTarget) onClose();
   }
@@ -152,23 +145,6 @@ export function SchoolPopup({ school, onUpdate, onClose, activities, currentUser
                 variant="light"
               />
             </div>
-          </div>
-
-          {/* TOKO担当者 */}
-          <div>
-            <label className="text-sm text-gray-500 font-medium block mb-1.5">TOKO担当者</label>
-            <input
-              type="text"
-              value={tokoPerson}
-              onChange={(e) => setTokoPerson(e.target.value)}
-              onBlur={() => {
-                if (tokoPerson !== school.toko_person) {
-                  onUpdate(school.id, { toko_person: tokoPerson });
-                }
-              }}
-              placeholder="TOKO担当者名を入力..."
-              className="w-full px-3 py-2 rounded text-sm text-gray-800 placeholder-gray-400 focus:outline-none transition-colors" style={{ backgroundColor: '#fdf8e0', border: '1px solid #d0c890' }}
-            />
           </div>
         </div>
       </div>

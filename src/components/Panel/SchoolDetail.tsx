@@ -20,7 +20,6 @@ interface SchoolDetailProps {
 const STAGES: RelationStage[] = [0, 1, 2, 3, 4, 5, 6];
 
 export function SchoolDetail({ school, onUpdate, onClose, activities, currentUser, onAddActivity, onMarkDone, onDeleteActivity }: SchoolDetailProps) {
-  const [tokoPerson, setTokoPerson] = useState(school.toko_person || '');
   const [otherNote, setOtherNote] = useState(school.support_other_note || '');
   const [oc2026, setOc2026] = useState(school.open_campus_2026);
   const [ocFetching, setOcFetching] = useState(false);
@@ -67,7 +66,6 @@ export function SchoolDetail({ school, onUpdate, onClose, activities, currentUse
   }
 
   useEffect(() => {
-    setTokoPerson(school.toko_person || '');
     setOtherNote(school.support_other_note || '');
     setOc2026(school.open_campus_2026);
     setOcPreview(null);
@@ -226,19 +224,6 @@ export function SchoolDetail({ school, onUpdate, onClose, activities, currentUse
               onDelete={onDeleteActivity}
             />
           </div>
-        </div>
-
-        {/* TOKO担当者 */}
-        <div>
-          <label className="text-sm text-slate-500 font-medium block mb-1">TOKO担当者</label>
-          <input
-            type="text"
-            value={tokoPerson}
-            onChange={(e) => setTokoPerson(e.target.value)}
-            onBlur={() => onUpdate(school.id, { toko_person: tokoPerson })}
-            placeholder="未入力"
-            className="w-full px-3 py-2 bg-[#1e293b] border border-[#334155] rounded text-sm text-slate-200 placeholder-slate-600 focus:outline-none focus:border-red-500 transition-colors"
-          />
         </div>
 
         {/* オープンキャンパス */}
