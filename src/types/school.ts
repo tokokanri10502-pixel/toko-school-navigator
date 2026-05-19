@@ -1,4 +1,4 @@
-export type SchoolType = '大学' | '短期大学' | '専門学校';
+export type SchoolType = '大学' | '短期大学' | '専門学校' | '高校';
 export type SchoolCategory = '国公立' | '私立';
 export type RelationStage = 0 | 1 | 2 | 3 | 4 | 5 | 6;
 

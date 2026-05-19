@@ -7,6 +7,7 @@ const TYPE_COLORS: Record<SchoolType, string> = {
   '大学': '#3b82f6',
   '短期大学': '#a855f7',
   '専門学校': '#f97316',
+  '高校': '#15803d',
 };
 
 interface SchoolMapProps {

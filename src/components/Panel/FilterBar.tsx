@@ -10,7 +10,7 @@ interface FilterBarProps {
   onReset: () => void;
 }
 
-const TYPES: SchoolType[] = ['大学', '短期大学', '専門学校'];
+const TYPES: SchoolType[] = ['大学', '短期大学', '専門学校', '高校'];
 const CATEGORIES: SchoolCategory[] = ['国公立', '私立'];
 const STAGES: RelationStage[] = [0, 1, 2, 3, 4, 5, 6];
 

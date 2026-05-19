@@ -8,9 +8,9 @@ interface Props {
 }
 
 const STAGES = [0, 1, 2, 3, 4, 5, 6] as const;
-const TYPES = ['大学', '短期大学', '専門学校'] as const;
+const TYPES = ['大学', '短期大学', '専門学校', '高校'] as const;
 const CATEGORIES = ['国公立', '私立'] as const;
-const TYPE_COLORS: Record<string, string> = { '大学': '#3b82f6', '短期大学': '#a855f7', '専門学校': '#f97316' };
+const TYPE_COLORS: Record<string, string> = { '大学': '#3b82f6', '短期大学': '#a855f7', '専門学校': '#f97316', '高校': '#15803d' };
 const CATEGORY_COLORS: Record<string, string> = { '国公立': '#22c55e', '私立': '#f43f5e' };
 
 interface PhaseEntry {

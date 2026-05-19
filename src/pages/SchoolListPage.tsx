@@ -23,7 +23,7 @@ type SortKey = 'type' | 'category' | 'phase' | 'contact_date' | 'notes_date';
 type SortDir = 'asc' | 'desc';
 
 const STAGES: RelationStage[] = [0, 1, 2, 3, 4, 5, 6];
-const TYPE_ORDER: Record<string, number> = { '大学': 0, '短期大学': 1, '専門学校': 2 };
+const TYPE_ORDER: Record<string, number> = { '大学': 0, '短期大学': 1, '専門学校': 2, '高校': 3 };
 const CATEGORY_ORDER: Record<string, number> = { '国公立': 0, '私立': 1 };
 
 export function SchoolListPage({ schools, onUpdate, selectedId, onSelectId, mapSelectedId, activities, currentUser, onAddActivity, onMarkDone, onDeleteActivity }: SchoolListPageProps) {
