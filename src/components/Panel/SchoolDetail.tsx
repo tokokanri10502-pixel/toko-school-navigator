@@ -172,36 +172,38 @@ export function SchoolDetail({ school, onUpdate, onClose, activities, currentUse
       <div className="overflow-y-auto flex-1 px-4 py-4 space-y-5">
         {/* フェーズ */}
         <div>
-          <div className="text-sm text-slate-500 mb-2 font-medium">営業フェーズ</div>
-          <div className="flex items-center gap-1">
-            {STAGES.map((s) => {
-              const active = parseStages(school.relation_stage).includes(s);
-              return (
-                <button
-                  key={s}
-                  onClick={() => handleStageToggle(s)}
-                  title={`P${s}: ${STAGE_LABELS[s]}`}
-                  className="flex-1 h-10 rounded text-sm font-medium transition-all relative group"
-                  style={{
-                    backgroundColor: active ? `${STAGE_COLORS[s]}33` : '#1e293b',
-                    border: `1px solid ${active ? STAGE_COLORS[s] : '#334155'}`,
-                    color: active ? STAGE_COLORS[s] : '#475569',
-                  }}
-                >
-                  {s}
-                  <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1 px-2 py-1 bg-[#0f172a] border border-[#334155] rounded text-xs text-slate-300 whitespace-nowrap opacity-0 group-hover:opacity-100 pointer-events-none z-10">
-                    P{s}: {STAGE_LABELS[s]}
-                  </div>
-                </button>
-              );
-            })}
+          <div className="flex items-center gap-3 flex-wrap">
+            <div className="text-xs text-slate-500 font-medium flex-shrink-0">営業フェーズ</div>
+            <div className="flex items-center gap-1 flex-1 min-w-[200px]">
+              {STAGES.map((s) => {
+                const active = parseStages(school.relation_stage).includes(s);
+                return (
+                  <button
+                    key={s}
+                    onClick={() => handleStageToggle(s)}
+                    title={`P${s}: ${STAGE_LABELS[s]}`}
+                    className="flex-1 h-6 rounded text-xs font-medium transition-all relative group"
+                    style={{
+                      backgroundColor: active ? `${STAGE_COLORS[s]}33` : '#1e293b',
+                      border: `1px solid ${active ? STAGE_COLORS[s] : '#334155'}`,
+                      color: active ? STAGE_COLORS[s] : '#475569',
+                    }}
+                  >
+                    {s}
+                    <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1 px-2 py-1 bg-[#0f172a] border border-[#334155] rounded text-xs text-slate-300 whitespace-nowrap opacity-0 group-hover:opacity-100 pointer-events-none z-10">
+                      P{s}: {STAGE_LABELS[s]}
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
           </div>
-          <div className="flex flex-wrap gap-1 mt-2 justify-center">
+          <div className="flex flex-wrap gap-1 mt-1.5">
             {parseStages(school.relation_stage).length === 0 ? (
-              <span className="text-sm text-slate-500">未設定</span>
+              <span className="text-xs text-slate-600">未設定</span>
             ) : (
               parseStages(school.relation_stage).map((s) => (
-                <span key={s} className="text-xs px-2 py-0.5 rounded font-medium" style={{ color: STAGE_COLORS[s], backgroundColor: `${STAGE_COLORS[s]}22`, border: `1px solid ${STAGE_COLORS[s]}55` }}>
+                <span key={s} className="text-[10px] px-1.5 py-0.5 rounded font-medium" style={{ color: STAGE_COLORS[s], backgroundColor: `${STAGE_COLORS[s]}22`, border: `1px solid ${STAGE_COLORS[s]}55` }}>
                   P{s}: {STAGE_LABELS[s]}
                 </span>
               ))
