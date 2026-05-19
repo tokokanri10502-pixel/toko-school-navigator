@@ -43,9 +43,10 @@ export function HomePage({ schools, activities, currentUser, onSelectSchool, onM
       .slice(0, 10);
   }, [activities, today]);
 
-  // 直近7日の活動
+  // 直近7日の活動（フェーズ変更ログは除外。明確な活動記録だけ表示）
   const recent = useMemo(() => {
     return activities
+      .filter((a) => a.type !== 'phase_change')
       .filter((a) => {
         const diff = daysBetween(a.activity_date, today);
         return diff >= 0 && diff <= RECENT_DAYS;
